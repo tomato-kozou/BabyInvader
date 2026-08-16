@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.englishquest.GameView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- スコア表示用のテキスト（追加） -->
+    <TextView
+        android:id="@+id/score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="50dp"
+        android:text="0.00s"
+        android:textSize="32sp"
+        android:textColor="#000000"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/droid_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/droid"/>
+
+</com.example.englishquest.GameView>
