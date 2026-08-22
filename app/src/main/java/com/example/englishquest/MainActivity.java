@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -42,10 +43,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ImageView droidImage = findViewById(R.id.droid_image);
         TextView scoreText = findViewById(R.id.score_text);
 
+        // ボタンの紐づけ
+        Button shootButton = findViewById(R.id.btn_shoot);
+        shootButton.setOnClickListener(v -> {
+            // 司令塔であるMainActivityからGameViewへ「撃て！」と命令を出す
+            gameView.shoot();
+        });
+
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
 
         gameView.initGame(droidImage, screenWidth, screenHeight, scoreText);
+
+        // ゲームオーバーの通知を受け取る
+        gameView.setGameListener(score -> {
+            triggerGameOver(score);
+        });
 
         // BGMの準備
         bgmPlayer = MediaPlayer.create(this, R.raw.bgm);
@@ -115,6 +128,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // 今回は使わないが、インターフェースの実装上必要
+    }
+
+    // ゲームオーバー処理
+    private void triggerGameOver(float score) {
+        // ログに出力
+        L.d("IN");
+
+        // ゲームオーバー音を再生
+        if(sePlayer != null) {
+            sePlayer.start();
+        }
+        // BGMを停止
+        if(bgmPlayer != null) {
+            bgmPlayer.stop();
+        }
+
+        Toast.makeText(this, "GAME OVER! Score: "
+                + score + "s", Toast.LENGTH_LONG).show();
+
+        // センサーを停止
+        sensorManager.unregisterListener(this);
+
+        // ログに出力
+        L.d("OUT");
     }
 
 }

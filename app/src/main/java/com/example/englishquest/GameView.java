@@ -4,6 +4,7 @@ import static java.lang.String.*;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -26,6 +27,8 @@ public class GameView extends FrameLayout {
     private Handler handler = new Handler();
     private long startTime;
     private TextView scoreText;
+    private List<ImageView> bullets = new ArrayList<>();
+    private GameListener gameListener;
 
     // コンストラクタ
     public GameView(Context context, AttributeSet attrs) {
@@ -78,6 +81,11 @@ public class GameView extends FrameLayout {
             if (checkCollision(droidChar.getImageView(), enemy)) {
                 // Game Over処理はMainActivityに通知する設計にするのが理想?今回はToastのみ
                 isGameOver = true;
+
+                // 司令塔に通知
+                if (gameListener != null) {
+                    gameListener.onGameOver(survivalTime);
+                }
                 break;
             }
 
@@ -85,6 +93,19 @@ public class GameView extends FrameLayout {
             if (enemy.getTranslationY() > screenHeight) {
                 this.removeView(enemy);
                 enemies.remove(i);
+                i--;
+            }
+        }
+
+        // 弾の移動処理
+        for (int i = 0; i < bullets.size(); i++) {
+            ImageView b = bullets.get(i);
+            b.setTranslationY(b.getTranslationY() - 20);
+
+            // 画面外で消去
+            if (b.getY() < -50) {
+                removeView(b);
+                bullets.remove(i);
                 i--;
             }
         }
@@ -154,4 +175,33 @@ public class GameView extends FrameLayout {
         // ログに出力
         L.d("OUT");
     }
+
+    public void shoot() {
+        // ログに出力
+        L.d("IN");
+
+        ImageView bullet = new ImageView(getContext());
+        bullet.setImageResource(R.drawable.bullet);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(50, 50);
+
+        // ドロイド君の位置から発射
+        params.leftMargin = (int) (droidChar.getImageView().getX() + 140);
+        params.topMargin = (int) droidChar.getImageView().getY();
+
+        this.addView(bullet, params);
+        bullets.add(bullet);
+
+        // ログに出力
+        L.d("OUT");
+    }
+
+    // MainActivityクラスにゲームオーバーを伝えるインタフェース
+    public interface GameListener {
+        void onGameOver(float score);
+    }
+
+    public void setGameListener(GameListener listener) {
+        this.gameListener = listener;
+    }
+
 }
