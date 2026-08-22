@@ -1,18 +1,12 @@
-package com.example.englishquest;
-
-import static java.lang.String.*;
+package com.example.babyinvader;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.media.Image;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,30 +1,22 @@
-package com.example.englishquest;
+package com.example.babyinvader;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.englishquest.R;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.babyinvader.R;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 

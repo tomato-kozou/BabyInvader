@@ -1,11 +1,8 @@
-package com.example.englishquest;
+package com.example.babyinvader;
 
 import android.content.Context;
-import android.media.Image;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import java.net.ContentHandler;
 
 public class Bullet {
     public ImageView imageView;

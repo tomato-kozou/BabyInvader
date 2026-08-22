@@ -1,8 +1,6 @@
-package com.example.englishquest;
+package com.example.babyinvader;
 
 import android.util.Log;
-
-import java.util.Stack;
 
 public class L {
     public static void d(String message) {
