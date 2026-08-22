@@ -65,6 +65,25 @@ public class GameView extends FrameLayout {
             droidChar.move(sensorX, screenWidth);
         }
 
+        // 敵と弾の当たり判定
+        for (int i = 0; i < enemies.size(); i++) {
+            ImageView enemy = enemies.get(i);
+
+            for (int j = 0; j < bullets.size(); j++) {
+                ImageView bullet = bullets.get(j);
+
+                if (checkCollision(bullet, enemy)) {
+                    // 当たった敵を削除
+                    this.removeView(enemy);
+                    enemies.remove(i);
+                    this.removeView(bullet);
+                    bullets.remove(j);
+                    return;
+                }
+            }
+
+        }
+
         // 敵の移動と当たり判定
         for (int i = 0; i < enemies.size(); i++ ) {
             ImageView enemy = enemies.get(i);
