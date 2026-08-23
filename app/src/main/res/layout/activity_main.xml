@@ -13,7 +13,7 @@
         android:layout_marginTop="50dp"
         android:text="0.00s"
         android:textSize="32sp"
-        android:textColor="#000000"
+        android:textColor="#FFFFFF"
         android:textStyle="bold" />
 
     <ImageView
