@@ -1,6 +1,9 @@
 package com.example.babyinvader;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;

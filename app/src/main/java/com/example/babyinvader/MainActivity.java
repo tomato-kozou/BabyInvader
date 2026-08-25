@@ -2,6 +2,7 @@ package com.example.babyinvader;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -127,6 +128,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // ログに出力
         L.d("IN");
 
+        // ハイスコアの保存と読込
+        this.saveHighScore(score);
+        float bestScore = this.getBestScore();
+
+        Toast.makeText(this, "GAME OVER! Score: "
+                + score + "s" + "\nBEST SCORE: " + bestScore + "s", Toast.LENGTH_LONG).show();
+
         // ゲームオーバー音を再生
         if(sePlayer != null) {
             sePlayer.start();
@@ -136,14 +144,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             bgmPlayer.stop();
         }
 
-        Toast.makeText(this, "GAME OVER! Score: "
-                + score + "s", Toast.LENGTH_LONG).show();
-
         // センサーを停止
         sensorManager.unregisterListener(this);
 
         // ログに出力
         L.d("OUT");
+    }
+
+    // スコアの保存
+    private void saveHighScore(float score) {
+        // ログに出力
+        L.d("IN");
+
+        SharedPreferences prefs = getSharedPreferences("BabyInvader", MODE_PRIVATE);
+        float bestScore = prefs.getFloat("BEST_SCORE", 0f);
+
+        if (score > bestScore) {
+            prefs.edit().putFloat("BEST_SCORE", score).apply();
+        }
+
+        // ログに出力
+        L.d("OUT");
+    }
+
+    private float getBestScore() {
+        // ログに出力
+        L.d("IN");
+
+        // ログに出力
+        L.d("OUT");
+
+        return getSharedPreferences("GamePrefs", MODE_PRIVATE).getFloat("BEST_SCORE", 0f);
     }
 
 }
