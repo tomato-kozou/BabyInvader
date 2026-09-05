@@ -1,15 +1,13 @@
-package com.example.babyinvader;
-
-import static android.content.Context.MODE_PRIVATE;
+package com.tomato_kozou.babyinvader;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.List;
 
 
 public class GameView extends FrameLayout {
-    private List<ImageView> enemies = new ArrayList<>(); // 敵を管理するリスト
+    private List<Enemy> enemies = new ArrayList<>(); // 敵を管理するリスト
     private DroidCharacter droidChar;
     private int screenWidth, screenHeight;
     private boolean isGameOver = false; // ゲームオーバー状態を管理
@@ -70,14 +68,14 @@ public class GameView extends FrameLayout {
 
         // 敵と弾の当たり判定
         for (int i = 0; i < enemies.size(); i++) {
-            ImageView enemy = enemies.get(i);
+            Enemy enemy = enemies.get(i);
 
             for (int j = 0; j < bullets.size(); j++) {
                 ImageView bullet = bullets.get(j);
 
-                if (checkCollision(bullet, enemy)) {
+                if (checkCollision(bullet, enemy.imageView)) {
                     // 当たった敵を削除
-                    this.removeView(enemy);
+                    this.removeView(enemy.imageView);
                     enemies.remove(i);
                     this.removeView(bullet);
                     bullets.remove(j);
@@ -89,12 +87,14 @@ public class GameView extends FrameLayout {
 
         // 敵の移動と当たり判定
         for (int i = 0; i < enemies.size(); i++ ) {
-            ImageView enemy = enemies.get(i);
-            float enemyY = enemy.getTranslationY() + 10; // 敵を下に10px進める
-            enemy.setTranslationY(enemyY);
+            Enemy enemy = enemies.get(i); // enemyオブジェクトを取り出す
+
+            // 敵の移動
+            enemy.y += 10; // 敵を下に10px進める
+            enemy.imageView.setTranslationY(enemy.y);
 
             // 当たり判定（ドロイド君と敵の距離が近いか）
-            if (checkCollision(droidChar.getImageView(), enemy)) {
+            if (checkCollision(droidChar.getImageView(), enemy.imageView)) {
                 // Game Over処理はMainActivityに通知する設計にするのが理想?今回はToastのみ
                 isGameOver = true;
 
@@ -106,8 +106,8 @@ public class GameView extends FrameLayout {
             }
 
             // 画面外に出た敵を削除してメモリを節約
-            if (enemy.getTranslationY() > screenHeight) {
-                this.removeView(enemy);
+            if (enemy.y > screenHeight) {
+                this.removeView(enemy.imageView);
                 enemies.remove(i);
                 i--;
             }
@@ -135,8 +135,9 @@ public class GameView extends FrameLayout {
         // ログに出力
         L.d("IN");
 
-        ImageView enemy = new ImageView(getContext());
-        enemy.setImageResource(R.drawable.enemy);
+        ImageView imageView = new ImageView(getContext());
+        imageView.setImageResource(R.drawable.enemy);
+        Enemy enemy = new Enemy(imageView);
 
         // 敵のサイズ設定（100px相当）
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(100, 100);
@@ -145,7 +146,7 @@ public class GameView extends FrameLayout {
         params.leftMargin = (int) (Math.random() * (screenWidth - 100));
         params.topMargin = -100; // 画面のすぐ外（上）に配置
 
-        this.addView(enemy, params);
+        this.addView(imageView, params);
         enemies.add(enemy);
 
         // ログに出力
@@ -214,10 +215,41 @@ public class GameView extends FrameLayout {
     // MainActivityクラスにゲームオーバーを伝えるインタフェース
     public interface GameListener {
         void onGameOver(float score);
+        void onRestartRequested();
     }
 
     public void setGameListener(GameListener listener) {
         this.gameListener = listener;
+    }
+
+    public void restartGame() {
+        // ログに出力
+        L.d("IN");
+
+        isGameOver = false;
+        startTime = System.currentTimeMillis(); // 時間のリセット
+
+        // 敵を全部消す
+        for (Enemy enemy : enemies) {
+            this.removeView(enemy.imageView);
+        }
+        enemies.clear();
+
+        // センサーの再開をMainActivityクラスへ通知
+        if (gameListener != null) {
+            gameListener.onRestartRequested();
+        }
+
+        startEnemySpawing();
+        Toast.makeText(getContext(), "RESTART!", Toast.LENGTH_SHORT).show();
+
+        // ログに出力
+        L.d("OUT");
+
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.babyinvader;
+package com.tomato_kozou.babyinvader;
 
 import org.junit.Test;
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.babyinvader"
+    namespace = "com.tomato_kozou.babyinvader"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.babyinvader"
+        applicationId = "com.tomato_kozou.babyinvader"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.example.babyinvader;
+package com.tomato_kozou.babyinvader;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.babyinvader.R;
+import com.tomato_kozou.babyinvader.R;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor accelerometer;
     private GameView gameView;
     private MediaPlayer bgmPlayer, sePlayer;
+    private static final String PREF_NAME = "BabyInvader";
+    private static final String KEY_BEST_SCORE = "BEST_SCORE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +52,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         gameView.initGame(droidImage, screenWidth, screenHeight, scoreText);
 
         // ゲームオーバーの通知を受け取る
-        gameView.setGameListener(score -> {
-            triggerGameOver(score);
+        gameView.setGameListener(new GameView.GameListener() {
+           @Override
+           public void onGameOver(float score) {
+               triggerGameOver(score);
+           }
+
+           @Override
+           public void onRestartRequested() {
+               //　センサートBGMを再開
+               sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+               if (bgmPlayer != null) {
+                   bgmPlayer.start();
+               }
+           }
         });
 
         // BGMの準備
@@ -65,6 +80,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // 加速度センサーのして
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        gameView.setOnClickListener(v -> {
+            if (gameView.isGameOver()) {
+                gameView.restartGame(); // restartGameメソッドを呼び出す
+            }
+        });
     }
 
     // onResumeで登録
@@ -156,11 +176,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // ログに出力
         L.d("IN");
 
-        SharedPreferences prefs = getSharedPreferences("BabyInvader", MODE_PRIVATE);
-        float bestScore = prefs.getFloat("BEST_SCORE", 0f);
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        float bestScore = prefs.getFloat(KEY_BEST_SCORE, 0f);
 
         if (score > bestScore) {
-            prefs.edit().putFloat("BEST_SCORE", score).apply();
+            prefs.edit().putFloat(KEY_BEST_SCORE, score).apply();
         }
 
         // ログに出力
@@ -174,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // ログに出力
         L.d("OUT");
 
-        return getSharedPreferences("GamePrefs", MODE_PRIVATE).getFloat("BEST_SCORE", 0f);
+        return getSharedPreferences(PREF_NAME, MODE_PRIVATE).getFloat(KEY_BEST_SCORE, 0f);
     }
 
 }
