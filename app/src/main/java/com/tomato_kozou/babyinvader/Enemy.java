@@ -11,4 +11,9 @@ public class Enemy {
         this.imageView = imageView;
         this.y = -100; // 初期位置を設定
     }
+
+    public void move (float speed) {
+        this.y += speed;
+        this.imageView.setTranslationY(this.y);
+    }
 }

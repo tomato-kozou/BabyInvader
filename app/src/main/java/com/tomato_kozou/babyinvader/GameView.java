@@ -90,8 +90,9 @@ public class GameView extends FrameLayout {
             Enemy enemy = enemies.get(i); // enemyオブジェクトを取り出す
 
             // 敵の移動
-            enemy.y += 10; // 敵を下に10px進める
-            enemy.imageView.setTranslationY(enemy.y);
+//            enemy.y += 10; // 敵を下に10px進める
+//            enemy.imageView.setTranslationY(enemy.y);
+            enemy.move(10);
 
             // 当たり判定（ドロイド君と敵の距離が近いか）
             if (checkCollision(droidChar.getImageView(), enemy.imageView)) {
