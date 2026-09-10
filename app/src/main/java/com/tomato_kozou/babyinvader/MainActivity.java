@@ -100,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (bgmPlayer != null) {
             bgmPlayer.start();
         }
+
+        // 画面に戻ったらタイマーを再開
+        gameView.setStartTime();
     }
 
     // onPauseで解除
@@ -115,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (bgmPlayer != null && bgmPlayer.isPlaying()) {
             bgmPlayer.pause();
         }
+
+        // 画面が隠れたら秒数を停止
+        gameView.stopTimer();
+
     }
 
     @Override

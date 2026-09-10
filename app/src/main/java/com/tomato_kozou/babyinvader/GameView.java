@@ -24,6 +24,8 @@ public class GameView extends FrameLayout {
     private TextView scoreText;
     private List<ImageView> bullets = new ArrayList<>();
     private GameListener gameListener;
+    private long pausedTime;
+    private boolean isPaused = false; // 停止判定フラグ
 
     // コンストラクタ
     public GameView(Context context, AttributeSet attrs) {
@@ -36,11 +38,13 @@ public class GameView extends FrameLayout {
         // ログに出力
         L.d("IN");
 
-        this.droidChar = new DroidCharacter(droidImage);
+        this.droidChar = new DroidCharacter(droidImage, screenWidth);
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.scoreText = scoreText; // MainActivityクラスから受け取る
         this.startTime = System.currentTimeMillis(); //時間を記録
+        this.pausedTime = 0; // 時間のリセット
+
 
         // 敵を呼び出す
         this.startEnemySpawing();
@@ -63,7 +67,9 @@ public class GameView extends FrameLayout {
 
         // ドロイド君の移動
         if (droidChar != null) {
-            droidChar.move(sensorX, screenWidth);
+            // ドロイド君クラスへセンサーを登録
+            droidChar.setSensorX(sensorX);
+            droidChar.move();
         }
 
         // 敵と弾の当たり判定
@@ -92,7 +98,8 @@ public class GameView extends FrameLayout {
             // 敵の移動
 //            enemy.y += 10; // 敵を下に10px進める
 //            enemy.imageView.setTranslationY(enemy.y);
-            enemy.move(10);
+            enemy.setSpeed(10);
+            enemy.move();
 
             // 当たり判定（ドロイド君と敵の距離が近いか）
             if (checkCollision(droidChar.getImageView(), enemy.imageView)) {
@@ -107,7 +114,7 @@ public class GameView extends FrameLayout {
             }
 
             // 画面外に出た敵を削除してメモリを節約
-            if (enemy.y > screenHeight) {
+            if (enemy.getEnemyPositionY() > screenHeight) {
                 this.removeView(enemy.imageView);
                 enemies.remove(i);
                 i--;
@@ -241,7 +248,7 @@ public class GameView extends FrameLayout {
             gameListener.onRestartRequested();
         }
 
-        startEnemySpawing();
+        this.startEnemySpawing();
         Toast.makeText(getContext(), "RESTART!", Toast.LENGTH_SHORT).show();
 
         // ログに出力
@@ -253,4 +260,22 @@ public class GameView extends FrameLayout {
         return isGameOver;
     }
 
+    public void stopTimer() {
+        isPaused = true;
+        handler.removeCallbacksAndMessages(null);
+        this.pausedTime = System.currentTimeMillis();
+    }
+
+    public void setStartTime() {
+        if (!isPaused) {
+            return;
+        }
+
+        long pauseDuration = System.currentTimeMillis() - this.pausedTime;
+        this.startTime += pauseDuration;
+        isPaused = false;
+
+        this.startEnemySpawing();
+
+    }
 }
