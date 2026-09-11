@@ -21,15 +21,8 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/droid"/>
 
-    <Button
-        android:id="@+id/btn_shoot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="50dp"
-        android:text="FIRE!"/>
 
 </com.tomato_kozou.babyinvader.GameView>

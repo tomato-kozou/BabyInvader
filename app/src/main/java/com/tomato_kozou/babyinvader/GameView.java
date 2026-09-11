@@ -45,7 +45,6 @@ public class GameView extends FrameLayout {
         this.startTime = System.currentTimeMillis(); //時間を記録
         this.pausedTime = 0; // 時間のリセット
 
-
         // 敵を呼び出す
         this.startEnemySpawing();
         // ログに出力

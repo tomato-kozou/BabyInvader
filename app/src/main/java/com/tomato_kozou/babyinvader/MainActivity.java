@@ -39,13 +39,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ImageView droidImage = findViewById(R.id.droid_image);
         TextView scoreText = findViewById(R.id.score_text);
 
-        // ボタンの紐づけ
-        Button shootButton = findViewById(R.id.btn_shoot);
-        shootButton.setOnClickListener(v -> {
-            // 司令塔であるMainActivityからGameViewへ「撃て！」と命令を出す
-            gameView.shoot();
-        });
-
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
 
@@ -83,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         gameView.setOnClickListener(v -> {
             if (gameView.isGameOver()) {
                 gameView.restartGame(); // restartGameメソッドを呼び出す
+            } else {
+                gameView.shoot();
             }
         });
     }
