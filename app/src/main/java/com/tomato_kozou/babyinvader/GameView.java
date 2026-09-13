@@ -188,16 +188,21 @@ public class GameView extends FrameLayout {
     private void startEnemySpawing() {
         // ログに出力
         L.d("IN");
+
+        // 1秒から3秒のランダムに設定
+        int randomDelay = 1000 + (int)(Math.random() * 2000);
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (!isGameOver) {
                     spawnEnemy();
-                    // 2秒ごとに自分自身を呼び出す（ループ）
-                    handler.postDelayed(this, 2000);
+                    // 次の敵もランダムな秒数で予約する
+                    int nextDelay = 100 + (int)(Math.random() * 2000);
+                    handler.postDelayed(this, nextDelay);
                 }
             }
-        }, 2000);
+        }, randomDelay);
         // ログに出力
         L.d("OUT");
     }
