@@ -26,6 +26,8 @@ public class GameView extends FrameLayout {
     private GameListener gameListener;
     private long pausedTime;
     private boolean isPaused = false; // 停止判定フラグ
+    private float centerX;
+    private float centerY;
 
     // コンストラクタ
     public GameView(Context context, AttributeSet attrs) {
@@ -204,16 +206,18 @@ public class GameView extends FrameLayout {
         // ログに出力
         L.d("IN");
 
-        ImageView bullet = new ImageView(getContext());
-        bullet.setImageResource(R.drawable.bullet);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(50, 50);
+        ImageView droidView = droidChar.imageView;
+        ImageView bulletImageView = new ImageView(getContext());
 
-        // ドロイド君の位置から発射
-        params.leftMargin = (int) (droidChar.getImageView().getX() + 140);
-        params.topMargin = (int) droidChar.getImageView().getY();
+        this.centerX = droidView.getX()
+                + (droidView.getWidth() / 2f) - 25f; // 25fは弾の幅の半分
+        this.centerY = droidView.getY(); // ドロイド君の上部から発射
 
-        this.addView(bullet, params);
-        bullets.add(bullet);
+        bulletImageView.setImageResource(R.drawable.bullet);
+        Bullet bullet = new Bullet(bulletImageView, centerX, centerY);
+
+        this.addView(bullet.imageView);
+        bullets.add(bulletImageView);
 
         // ログに出力
         L.d("OUT");
