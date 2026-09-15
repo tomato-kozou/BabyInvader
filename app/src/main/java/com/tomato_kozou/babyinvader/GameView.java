@@ -96,9 +96,6 @@ public class GameView extends FrameLayout {
         for (int i = 0; i < enemies.size(); i++ ) {
             Enemy enemy = enemies.get(i); // enemyオブジェクトを取り出す
 
-            // 敵の移動
-//            enemy.y += 10; // 敵を下に10px進める
-//            enemy.imageView.setTranslationY(enemy.y);
             enemy.setSpeed(10);
             enemy.move();
 
@@ -116,9 +113,16 @@ public class GameView extends FrameLayout {
 
             // 画面外に出た敵を削除してメモリを節約
             if (enemy.getEnemyPositionY() > screenHeight) {
-                this.removeView(enemy.imageView);
-                enemies.remove(i);
-                i--;
+                isGameOver = true;
+
+                // 司令塔に通知
+                if (gameListener != null) {
+                    gameListener.onGameOver(survivalTime);
+                }
+                break;
+//                this.removeView(enemy.imageView);
+//                enemies.remove(i);
+//                i--;
             }
         }
 
