@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -154,8 +155,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.saveHighScore(score);
         float bestScore = this.getBestScore();
 
-        Toast.makeText(this, "GAME OVER! Score: "
-                + score + "s" + "\nBEST SCORE: " + bestScore + "s", Toast.LENGTH_LONG).show();
+        Handler handler;
+        handler = new Handler(getMainLooper());
+        handler.post(() -> gameView.showGameOverDialog(score, bestScore));
 
         // ゲームオーバー音を再生
         if(sePlayer != null) {

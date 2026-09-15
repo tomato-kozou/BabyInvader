@@ -1,5 +1,6 @@
 package com.tomato_kozou.babyinvader;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -120,9 +121,6 @@ public class GameView extends FrameLayout {
                     gameListener.onGameOver(survivalTime);
                 }
                 break;
-//                this.removeView(enemy.imageView);
-//                enemies.remove(i);
-//                i--;
             }
         }
 
@@ -290,4 +288,20 @@ public class GameView extends FrameLayout {
         this.startEnemySpawing();
 
     }
+
+    public void showGameOverDialog(float score, float bestScore) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Game Over")
+                .setMessage("今回のスコア" + score + "\nベストスコア"
+                        + bestScore + "\n再開しますか？")
+                .setPositiveButton("はい", (dialog, which) -> {
+                    restartGame();
+                })
+//                .setNegativeButton("いいえ",((dialog, which) -> {
+//                  //  ゲームを終了してホーム画面に戻る？ホーム画面を実装する場合はここを使う
+//                });
+                .setCancelable(false)
+                .show();
+    }
+
 }
