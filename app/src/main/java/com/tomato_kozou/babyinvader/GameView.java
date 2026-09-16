@@ -151,11 +151,19 @@ public class GameView extends FrameLayout {
         Enemy enemy = new Enemy(imageView);
 
         // 敵のサイズ設定（100px相当）
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(100, 100);
+        int enemySize = 100;
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(enemySize, enemySize);
+
+        // 画面端の敵を倒せるようにドロイド君の半分の幅を追加
+        int padding = (int) (droidChar.imageView.getWidth() * 0.5f);
+
+        // 敵を出現させる範囲を計算
+        // 0(左端) + padding から、screenWidth - padding(右端) まで
+        int range = screenWidth - (padding * 2);
 
         // 出現位置を横方向でランダムにする
-        params.leftMargin = (int) (Math.random() * (screenWidth - 100));
-        params.topMargin = -100; // 画面のすぐ外（上）に配置
+        params.leftMargin = padding + (int) (Math.random() * range);
+        params.topMargin = -enemySize; // 画面のすぐ外（上）に配置
 
         this.addView(imageView, params);
         enemies.add(enemy);
