@@ -45,23 +45,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         gameView.initGame(droidImage, screenWidth, screenHeight, scoreText);
 
-        // ゲームオーバーの通知を受け取る
-        gameView.setGameListener(new GameView.GameListener() {
-           @Override
-           public void onGameOver(float score) {
-               triggerGameOver(score);
-           }
-
-           @Override
-           public void onRestartRequested() {
-               //　センサートBGMを再開
-               sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
-               if (bgmPlayer != null) {
-                   bgmPlayer.start();
-               }
-           }
-        });
-
         // BGMの準備
         bgmPlayer = MediaPlayer.create(this, R.raw.bgm);
         bgmPlayer.setLooping(true);
@@ -75,10 +58,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         gameView.setOnClickListener(v -> {
-            if (gameView.isGameOver()) {
-                gameView.restartGame(); // restartGameメソッドを呼び出す
-            } else {
-                gameView.shoot();
+            gameView.shoot();
+        });
+
+        // ゲームオーバーの通知を受け取る
+        gameView.setGameListener(new GameView.GameListener() {
+            @Override
+            public void onGameOver(float score) {
+                triggerGameOver(score);
+            }
+
+            @Override
+            public void onRestartRequested() {
+                //　センサーとBGMを再開
+                sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+                if (bgmPlayer != null) {
+                    bgmPlayer.start();
+                }
             }
         });
     }
@@ -165,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         // BGMを停止
         if(bgmPlayer != null) {
-            bgmPlayer.stop();
+            bgmPlayer.pause();
         }
 
         // センサーを停止
