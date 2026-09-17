@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private MediaPlayer bgmPlayer, sePlayer;
     private static final String PREF_NAME = "BabyInvader";
     private static final String KEY_BEST_SCORE = "BEST_SCORE";
+    private boolean isBgmPaused = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
         // 画面に戻ったらBGMを再開
-        if (bgmPlayer != null) {
+        if (bgmPlayer != null && !(isBgmPaused)) {
             bgmPlayer.start();
         }
 
@@ -161,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         // BGMを停止
         if(bgmPlayer != null) {
+            isBgmPaused = true;
             bgmPlayer.pause();
         }
 
