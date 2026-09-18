@@ -29,6 +29,8 @@ public class GameView extends FrameLayout {
     private boolean isPaused = false; // 停止判定フラグ
     private float centerX;
     private float centerY;
+    private int enemyCountPerSpawm = 1; // 一度に出現する敵の数
+    private long gameStartTime; // ゲーム全体の開始時間
 
     // コンストラクタ
     public GameView(Context context, AttributeSet attrs) {
@@ -47,6 +49,7 @@ public class GameView extends FrameLayout {
         this.scoreText = scoreText; // MainActivityクラスから受け取る
         this.startTime = System.currentTimeMillis(); //時間を記録
         this.pausedTime = 0; // 時間のリセット
+        this.gameStartTime = System.currentTimeMillis(); // 全体の開始時間
 
         // 敵を呼び出す
         this.startEnemySpawing();
@@ -206,7 +209,21 @@ public class GameView extends FrameLayout {
             @Override
             public void run() {
                 if (!isGameOver) {
-                    spawnEnemy();
+                    // 時間経過に応じて敵の数を増やす
+                    long elapsedSeconds = (System.currentTimeMillis() - gameStartTime) / 1000;
+                    L.d("elapsedSeconds: " + elapsedSeconds);
+                    if (elapsedSeconds >= 60) {
+                        enemyCountPerSpawm = 3;
+                    } else if(elapsedSeconds >= 30) {
+                        enemyCountPerSpawm = 2;
+                    } else {
+                        enemyCountPerSpawm = 1;
+                    }
+
+                    for(int i = 0; i < enemyCountPerSpawm; i++) {
+                        spawnEnemy();
+                    }
+
                     // 次の敵もランダムな秒数で予約する
                     int nextDelay = 100 + (int)(Math.random() * 2000);
                     handler.postDelayed(this, nextDelay);
@@ -254,6 +271,7 @@ public class GameView extends FrameLayout {
 
         isGameOver = false;
         startTime = System.currentTimeMillis(); // 時間のリセット
+        this.gameStartTime = System.currentTimeMillis(); // 全体の開始時間リセット
 
         // 敵を全部消す
         for (Enemy enemy : enemies) {
