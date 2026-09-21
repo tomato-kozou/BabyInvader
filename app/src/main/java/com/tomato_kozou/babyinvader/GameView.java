@@ -31,6 +31,8 @@ public class GameView extends FrameLayout {
     private float centerY;
     private int enemyCountPerSpawm = 1; // 一度に出現する敵の数
     private long gameStartTime; // ゲーム全体の開始時間
+    private boolean isBossSpawned = false;
+    private Enemy boss;
 
     // コンストラクタ
     public GameView(Context context, AttributeSet attrs) {
@@ -77,31 +79,52 @@ public class GameView extends FrameLayout {
             droidChar.move();
         }
 
+//        if (System.currentTimeMillis() - startTime > 90000 && !isBossSpawned) {
+        if (System.currentTimeMillis() - startTime > 3000 && !isBossSpawned) {
+            this.spawnBoss();
+            this.isBossSpawned = true;
+        }
+
         // 敵と弾の当たり判定
         for (int i = 0; i < enemies.size(); i++) {
             Enemy enemy = enemies.get(i);
+            enemy.setSpeed(10);
+            enemy.move();
 
             for (int j = 0; j < bullets.size(); j++) {
                 ImageView bullet = bullets.get(j);
 
                 if (checkCollision(bullet, enemy.imageView)) {
-                    // 当たった敵を削除
-                    this.removeView(enemy.imageView);
-                    enemies.remove(i);
+                    // ボス判定
+                    if (enemy.isBoss()) {
+                        enemy.takeDamage(1);
+                        if (enemy.isDead()) {
+                            this.removeView(enemy.imageView);
+                            enemies.remove(i);
+                            // ゲームクリア、スコアタイム表示(MainActivityクラスにゲームクリアを伝える)
+                            if (gameListener != null) {
+                                float finalScore = (System.currentTimeMillis() - gameStartTime) / 1000.0f;
+                                gameListener.onGameClear(finalScore);
+                            }
+                            return;
+                        }
+                    } else {
+                        // 当たった敵を削除
+                        this.removeView(enemy.imageView);
+                        enemies.remove(i);
+                        i--;
+                    }
+
                     this.removeView(bullet);
                     bullets.remove(j);
-                    return;
+                    j--;
                 }
             }
-
         }
 
         // 敵の移動と当たり判定
         for (int i = 0; i < enemies.size(); i++ ) {
             Enemy enemy = enemies.get(i); // enemyオブジェクトを取り出す
-
-            enemy.setSpeed(10);
-            enemy.move();
 
             // 当たり判定（ドロイド君と敵の距離が近いか）
             if (checkCollision(droidChar.getImageView(), enemy.imageView)) {
@@ -259,6 +282,7 @@ public class GameView extends FrameLayout {
     public interface GameListener {
         void onGameOver(float score);
         void onRestartRequested();
+        void onGameClear(float score);
     }
 
     public void setGameListener(GameListener listener) {
@@ -328,6 +352,39 @@ public class GameView extends FrameLayout {
 //                });
                 .setCancelable(false)
                 .show();
+    }
+
+    public void spawnBoss() {
+        ImageView bossImageView = new ImageView(getContext());
+        bossImageView.setImageResource(R.drawable.boss);
+
+        this.boss = new Enemy(bossImageView);
+        boss.setBoss(true); // ボス属性を付与
+//        boss.setHp(100);
+        boss.setHp(10); // test
+
+        // 敵のサイズ設定（100px相当）
+        int enemySize = 200;
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(enemySize, enemySize);
+
+        params.leftMargin = 0;
+        params.topMargin = enemySize;
+
+        // 画面サイズをEnemyクラスに渡す
+        this.boss.setScreenWidth(screenWidth);
+        this.boss.setScreenHeight(screenHeight);
+
+        this.addView(bossImageView, params);
+
+        // ボスの初期位置を設定
+        boss.x = 0; // 中央
+        boss.y = -200; // 画面外上部
+
+        // 初回描画時に位置を反映
+        bossImageView.setTranslationX(boss.x);
+        bossImageView.setTranslationY(boss.y);
+
+        enemies.add(boss);
     }
 
 }

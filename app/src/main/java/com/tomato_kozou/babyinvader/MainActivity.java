@@ -73,10 +73,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onRestartRequested() {
                 //　センサーとBGMを再開
-                sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+                sensorManager.registerListener(MainActivity.this, accelerometer,
+                        SensorManager.SENSOR_DELAY_GAME);
                 if (bgmPlayer != null) {
                     bgmPlayer.start();
                 }
+            }
+
+            @Override
+            public void onGameClear(float score) {
+                Toast.makeText(MainActivity.this, "GAME CLEAR！\nSCORE: "
+                        + score + "s", Toast.LENGTH_LONG).show();
+                sensorManager.unregisterListener(MainActivity.this);
             }
         });
     }
