@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // 画面が隠れたらBGMを一時停止（バッテリーとメモリの節約）
         if (bgmPlayer != null && bgmPlayer.isPlaying()) {
+            isBgmPaused = false;
             bgmPlayer.pause();
         }
 

@@ -1,9 +1,12 @@
 package com.tomato_kozou.babyinvader;
 
 import android.media.Image;
+import android.os.Looper;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.tomato_kozou.babyinvader.GameObject;
+
+import java.util.logging.Handler;
 
 public class Enemy extends GameObject {
     private float speed;

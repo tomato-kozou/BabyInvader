@@ -23,7 +23,7 @@ public class GameView extends FrameLayout {
     private Handler handler = new Handler();
     private long startTime;
     private TextView scoreText;
-    private List<ImageView> bullets = new ArrayList<>();
+    private List<Bullet> bullets = new ArrayList<>();
     private GameListener gameListener;
     private long pausedTime;
     private boolean isPaused = false; // 停止判定フラグ
@@ -33,6 +33,7 @@ public class GameView extends FrameLayout {
     private long gameStartTime; // ゲーム全体の開始時間
     private boolean isBossSpawned = false;
     private Enemy boss;
+    private Bullet enemyBullet;
 
     // コンストラクタ
     public GameView(Context context, AttributeSet attrs) {
@@ -92,9 +93,9 @@ public class GameView extends FrameLayout {
             enemy.move();
 
             for (int j = 0; j < bullets.size(); j++) {
-                ImageView bullet = bullets.get(j);
+                Bullet bullet = bullets.get(j);
 
-                if (checkCollision(bullet, enemy.imageView)) {
+                if (checkCollision(bullet.imageView, enemy.imageView)) {
                     // ボス判定
                     if (enemy.isBoss()) {
                         enemy.takeDamage(1);
@@ -105,6 +106,7 @@ public class GameView extends FrameLayout {
                             if (gameListener != null) {
                                 float finalScore = (System.currentTimeMillis() - gameStartTime) / 1000.0f;
                                 gameListener.onGameClear(finalScore);
+                                this.isBossSpawned = false;
                             }
                             return;
                         }
@@ -115,7 +117,7 @@ public class GameView extends FrameLayout {
                         i--;
                     }
 
-                    this.removeView(bullet);
+                    this.removeView(bullet.imageView);
                     bullets.remove(j);
                     j--;
                 }
@@ -133,6 +135,7 @@ public class GameView extends FrameLayout {
 
                 // 司令塔に通知
                 if (gameListener != null) {
+                    this.isBossSpawned = false;
                     gameListener.onGameOver(survivalTime);
                 }
                 break;
@@ -144,6 +147,7 @@ public class GameView extends FrameLayout {
 
                 // 司令塔に通知
                 if (gameListener != null) {
+                    this.isBossSpawned = false;
                     gameListener.onGameOver(survivalTime);
                 }
                 break;
@@ -152,12 +156,29 @@ public class GameView extends FrameLayout {
 
         // 弾の移動処理
         for (int i = 0; i < bullets.size(); i++) {
-            ImageView b = bullets.get(i);
-            b.setTranslationY(b.getTranslationY() - 20);
+            Bullet b = bullets.get(i);
+            b.move();
+
+            if (b.getEnemyBullet()) {
+                if (checkCollision(b.imageView, droidChar.getImageView())) {
+                    isGameOver = true;
+
+                    // 司令塔に通知
+                    if (gameListener != null) {
+                        this.isBossSpawned = false;
+                        gameListener.onGameOver(survivalTime);
+
+                        // 弾を消去
+                        removeView(b.imageView);
+                        bullets.remove(i);
+                        break;
+                    }
+                }
+            }
 
             // 画面外で消去
-            if (b.getY() < -50) {
-                removeView(b);
+            if (b.imageView.getY() < -50 || b.imageView.getX() > screenWidth + 50) {
+                removeView(b.imageView);
                 bullets.remove(i);
                 i--;
             }
@@ -271,8 +292,11 @@ public class GameView extends FrameLayout {
         bulletImageView.setImageResource(R.drawable.bullet);
         Bullet bullet = new Bullet(bulletImageView, centerX, centerY);
 
+        // 弾を判別
+        bullet.setEnemyBullet(false);
+
         this.addView(bullet.imageView);
-        bullets.add(bulletImageView);
+        bullets.add(bullet);
 
         // ログに出力
         L.d("OUT");
@@ -355,6 +379,7 @@ public class GameView extends FrameLayout {
     }
 
     public void spawnBoss() {
+        L.d("IN");
         ImageView bossImageView = new ImageView(getContext());
         bossImageView.setImageResource(R.drawable.boss);
 
@@ -378,13 +403,62 @@ public class GameView extends FrameLayout {
 
         // ボスの初期位置を設定
         boss.x = 0; // 中央
-        boss.y = -200; // 画面外上部
+        boss.y = 100; // 画面外上部
 
         // 初回描画時に位置を反映
         bossImageView.setTranslationX(boss.x);
         bossImageView.setTranslationY(boss.y);
 
         enemies.add(boss);
+
+        this.startEnemyShooting(boss);
+        L.d("OUT");
+    }
+
+    private void startEnemyShooting(Enemy boss) {
+        L.d("IN");
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (enemies.contains(boss)) {
+                    // 今のボスの座標を再取得する
+                    float currentBossX = boss.imageView.getTranslationX();
+                    float currentBossY = boss.imageView.getTranslationY();
+
+                    // 敵の弾を生成
+                    ImageView enemyBulletImageView = new ImageView(getContext());
+                    enemyBulletImageView.setImageResource(R.drawable.enemy_bullet);
+
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(50, 50);
+                    params.leftMargin = (int) (currentBossX + 75);
+                    params.topMargin = (int) (currentBossY + 200);
+
+                    // 弾の移動処理
+                    Bullet enemyBullet = new Bullet(enemyBulletImageView, boss.x, boss.y);
+                    // 敵の弾フラグをON
+                    enemyBullet.setEnemyBullet(true);
+
+                    // ボス画像の中心位置を計算
+                    float bossCenterX = boss.x + boss.imageView.getWidth() / 2f;
+                    float bossCenterY = boss.y + boss.imageView.getHeight() / 2f;
+
+                    // 弾の画像の中心位置を補正
+                    float bulletStartX = bossCenterX - (enemyBulletImageView.getWidth() / 2f);
+                    float bulletStartY = bossCenterY - (enemyBulletImageView.getHeight() / 2f);
+
+                    enemyBulletImageView.setTranslationX(bulletStartX);
+                    enemyBulletImageView.setTranslationY(bulletStartY);
+
+                    addView(enemyBulletImageView, params);
+                    bullets.add(enemyBullet);
+
+                    // 次の射撃予約
+                    handler.postDelayed(this, 3000);
+
+                }
+            }
+        }, 3000);
+        L.d("OUT");
     }
 
 }

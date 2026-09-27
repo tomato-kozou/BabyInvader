@@ -8,6 +8,8 @@ public class Bullet extends GameObject {
     private float x;
     private float y;
 
+    private boolean isEnemyBullet;
+
 
     public Bullet (ImageView imageView, float startX, float startY) {
         super(imageView);
@@ -26,8 +28,23 @@ public class Bullet extends GameObject {
     @Override
     public void move() {
         L.d("IN");
-        this.y -= 10;
+        if (this.isEnemyBullet) {
+            this.y += 10;
+        } else {
+            this.y -= 20;
+        }
         this.imageView.setTranslationY(y);
         L.d("OUT");
+    }
+
+    public boolean getEnemyBullet() {
+        return this.isEnemyBullet;
+    }
+
+    public void setEnemyBullet(boolean isEnemyBullet) {
+        this.isEnemyBullet = isEnemyBullet;
+        if (isEnemyBullet) {
+            this.imageView.setImageResource(R.drawable.enemy_bullet);
+        }
     }
 }
