@@ -105,8 +105,9 @@ public class GameView extends FrameLayout {
                             // ゲームクリア、スコアタイム表示(MainActivityクラスにゲームクリアを伝える)
                             if (gameListener != null) {
                                 float finalScore = (System.currentTimeMillis() - gameStartTime) / 1000.0f;
-                                gameListener.onGameClear(finalScore);
                                 this.isBossSpawned = false;
+                                this.isGameOver = true;
+                                gameListener.onGameClear(finalScore);
                             }
                             return;
                         }
@@ -459,6 +460,17 @@ public class GameView extends FrameLayout {
             }
         }, 3000);
         L.d("OUT");
+    }
+
+    public void showGameClearDialog(float score) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("GAME CLEAR")
+                .setMessage("ゲームクリア!\nSCORE: " + score + "s\n再開しますか？")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    restartGame(); // リスタート処理を呼び出し
+                })
+                .setCancelable(false)
+                .show();
     }
 
 }

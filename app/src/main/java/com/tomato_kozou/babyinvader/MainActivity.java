@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private GameView gameView;
-    private MediaPlayer bgmPlayer, sePlayer;
+    private MediaPlayer bgmPlayer, sePlayer, clearPlayer;
     private static final String PREF_NAME = "BabyInvader";
     private static final String KEY_BEST_SCORE = "BEST_SCORE";
     private boolean isBgmPaused = false;
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // 効果音の設定
         sePlayer = MediaPlayer.create(this, R.raw.explosion);
+        clearPlayer = MediaPlayer.create(this, R.raw.clear);
 
         // センサーマネージャの取得
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -82,9 +83,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onGameClear(float score) {
-                Toast.makeText(MainActivity.this, "GAME CLEAR！\nSCORE: "
-                        + score + "s", Toast.LENGTH_LONG).show();
-                sensorManager.unregisterListener(MainActivity.this);
+//                Toast.makeText(MainActivity.this, "GAME CLEAR！\nSCORE: "
+//                        + score + "s", Toast.LENGTH_LONG).show();
+//
+//                // 音楽の制御
+//                isBgmPaused = true;
+//                if(bgmPlayer != null) bgmPlayer.pause();
+//                if(sePlayer != null) sePlayer.start(); // 勝利音
+//
+//                // GameViewのダイアログ表示
+//                gameView.showGameClearDialog(score);
+//
+//                // センサー停止
+//                sensorManager.unregisterListener(MainActivity.this);
+                triggerGameClear(score);
             }
         });
     }
@@ -96,15 +108,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // ★ライフサイクル確認用のログ
         Log.d("LIFECYCLE", "onResume: センサーを開始しました（画面が最前面に出ました）");
 
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        if (gameView != null && !gameView.isGameOver()) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
-        // 画面に戻ったらBGMを再開
-        if (bgmPlayer != null && !(isBgmPaused)) {
-            bgmPlayer.start();
+            // 画面に戻ったらBGMを再開
+            if (bgmPlayer != null && !(isBgmPaused)) {
+                bgmPlayer.start();
+            }
+
+            // 画面に戻ったらタイマーを再開
+            gameView.setStartTime();
         }
-
-        // 画面に戻ったらタイマーを再開
-        gameView.setStartTime();
     }
 
     // onPauseで解除
@@ -135,10 +149,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             bgmPlayer.release();
             bgmPlayer = null;
         }
+
         if (sePlayer != null) {
             sePlayer.release();
             sePlayer = null;
         }
+
+        if (clearPlayer != null) {
+            clearPlayer.release();
+            clearPlayer = null;
+        }
+
     }
 
     @SuppressLint("DefaultLocale")
@@ -207,6 +228,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         L.d("OUT");
 
         return getSharedPreferences(PREF_NAME, MODE_PRIVATE).getFloat(KEY_BEST_SCORE, 0f);
+    }
+
+    private void triggerGameClear(float score) {
+        // ログに出力
+        L.d("IN");
+
+        // ハイスコアの保存と読込
+        this.saveHighScore(score);
+        float bestScore = this.getBestScore();
+
+        Handler handler;
+        handler = new Handler(getMainLooper());
+        handler.post(() -> gameView.showGameClearDialog(bestScore));
+
+        // ゲームクリア音を再生
+        if(clearPlayer != null) {
+            clearPlayer.start();
+        }
+
+        // BGMを停止
+        if(bgmPlayer != null) {
+            isBgmPaused = true;
+            bgmPlayer.pause();
+        }
+
+        // センサーを停止
+        sensorManager.unregisterListener(this);
+
+        // ログに出力
+        L.d("OUT");
+
+
     }
 
 }
