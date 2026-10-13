@@ -179,8 +179,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // ログに出力
         L.d("IN");
 
-        // ハイスコアの保存と読込
-        this.saveHighScore(score);
+//        // ハイスコアの保存と読込
+//        this.saveHighScore(score);
         float bestScore = this.getBestScore();
 
         Handler handler;
@@ -210,9 +210,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         L.d("IN");
 
         SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        float bestScore = prefs.getFloat(KEY_BEST_SCORE, 0f);
+        float bestScore = prefs.getFloat(KEY_BEST_SCORE, 9999f);
 
-        if (score > bestScore) {
+        if (score < bestScore) {
             prefs.edit().putFloat(KEY_BEST_SCORE, score).apply();
         }
 
@@ -224,10 +224,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // ログに出力
         L.d("IN");
 
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+
         // ログに出力
         L.d("OUT");
 
-        return getSharedPreferences(PREF_NAME, MODE_PRIVATE).getFloat(KEY_BEST_SCORE, 0f);
+        return getSharedPreferences(PREF_NAME, MODE_PRIVATE).getFloat(KEY_BEST_SCORE, 9999f);
     }
 
     private void triggerGameClear(float score) {
@@ -240,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         Handler handler;
         handler = new Handler(getMainLooper());
-        handler.post(() -> gameView.showGameClearDialog(bestScore));
+        handler.post(() -> gameView.showGameClearDialog(score, bestScore));
 
         // ゲームクリア音を再生
         if(clearPlayer != null) {

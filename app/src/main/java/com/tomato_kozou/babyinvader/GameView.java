@@ -80,8 +80,8 @@ public class GameView extends FrameLayout {
             droidChar.move();
         }
 
-//        if (System.currentTimeMillis() - startTime > 90000 && !isBossSpawned) {
-        if (System.currentTimeMillis() - startTime > 3000 && !isBossSpawned) {
+        if (System.currentTimeMillis() - startTime > 90000 && !isBossSpawned) {
+//        if (System.currentTimeMillis() - startTime > 3000 && !isBossSpawned) { // test
             this.spawnBoss();
             this.isBossSpawned = true;
         }
@@ -367,8 +367,9 @@ public class GameView extends FrameLayout {
     public void showGameOverDialog(float score, float bestScore) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Game Over")
-                .setMessage("今回のスコア" + score + "\nベストスコア"
-                        + bestScore + "\n再開しますか？")
+//                .setMessage("今回のスコア" + score + "\nベストスコア"
+//                        + bestScore + "\n再開しますか？")
+                .setMessage("再開しますか？")
                 .setPositiveButton("はい", (dialog, which) -> {
                     restartGame();
                 })
@@ -386,8 +387,8 @@ public class GameView extends FrameLayout {
 
         this.boss = new Enemy(bossImageView);
         boss.setBoss(true); // ボス属性を付与
-//        boss.setHp(100);
-        boss.setHp(10); // test
+        boss.setHp(100);
+//        boss.setHp(10); // test
 
         // 敵のサイズ設定（100px相当）
         int enemySize = 200;
@@ -462,10 +463,11 @@ public class GameView extends FrameLayout {
         L.d("OUT");
     }
 
-    public void showGameClearDialog(float score) {
+    public void showGameClearDialog(float score, float bestScore) {
         new AlertDialog.Builder(getContext())
                 .setTitle("GAME CLEAR")
-                .setMessage("ゲームクリア!\nSCORE: " + score + "s\n再開しますか？")
+                .setMessage("ゲームクリア!\nSCORE : " + score + "s\n"
+                        + "BEST SCORE : " + bestScore + "s\n再開しますか？")
                 .setPositiveButton("OK", (dialog, which) -> {
                     restartGame(); // リスタート処理を呼び出し
                 })
