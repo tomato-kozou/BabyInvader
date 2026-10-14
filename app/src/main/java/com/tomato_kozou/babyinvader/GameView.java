@@ -61,8 +61,8 @@ public class GameView extends FrameLayout {
     }
 
     public void update(float sensorX) {
-        // ログに出力
-        L.d("IN");
+//        // ログに出力
+//        L.d("IN");
 
         if (isGameOver) {
             return;
@@ -139,12 +139,13 @@ public class GameView extends FrameLayout {
                     this.isBossSpawned = false;
                     gameListener.onGameOver(survivalTime);
                 }
-                break;
             }
 
             // 画面外に出た敵を削除してメモリを節約
             if (enemy.getEnemyPositionY() > screenHeight) {
                 isGameOver = true;
+                removeView(enemy.imageView);
+                enemies.remove(i);
 
                 // 司令塔に通知
                 if (gameListener != null) {
@@ -185,14 +186,14 @@ public class GameView extends FrameLayout {
             }
         }
 
-        // ログに出力
-        L.d("OUT");
+//        // ログに出力
+//        L.d("OUT");
 
     }
 
     public void spawnEnemy() {
-        // ログに出力
-        L.d("IN");
+//        // ログに出力
+//        L.d("IN");
 
         ImageView imageView = new ImageView(getContext());
         imageView.setImageResource(R.drawable.enemy);
@@ -216,14 +217,14 @@ public class GameView extends FrameLayout {
         this.addView(imageView, params);
         enemies.add(enemy);
 
-        // ログに出力
-        L.d("OUT");
+//        // ログに出力
+//        L.d("OUT");
     }
 
     // 当たり判定のメソッド
     private boolean checkCollision(View v1, View v2) {
-        // ログに出力
-        L.d("IN");
+//        // ログに出力
+//        L.d("IN");
 
         int[] loc1 = new int[2];
         v1.getLocationOnScreen(loc1);
@@ -236,16 +237,16 @@ public class GameView extends FrameLayout {
         float d2x = loc2[0] + v2.getWidth() / 2f;
         float d2y = loc2[1] + v2.getHeight() / 2f;
         double distance = Math.sqrt(Math.pow(d1x - d2x, 2) + Math.pow(d1y - d2y, 2));
-        // ログに出力
-        L.d("OUT");
+//        // ログに出力
+//        L.d("OUT");
 
         return distance < (v1.getWidth() / 2f + v2.getWidth() / 2f) * 0.8; // 少し甘めに判定
     }
 
     // 敵を出現させる
     private void startEnemySpawing() {
-        // ログに出力
-        L.d("IN");
+//        // ログに出力
+//        L.d("IN");
 
         // 1秒から3秒のランダムに設定
         int randomDelay = 1000 + (int)(Math.random() * 2000);
@@ -275,13 +276,13 @@ public class GameView extends FrameLayout {
                 }
             }
         }, randomDelay);
-        // ログに出力
-        L.d("OUT");
+//        // ログに出力
+//        L.d("OUT");
     }
 
     public void shoot() {
-        // ログに出力
-        L.d("IN");
+//        // ログに出力
+//        L.d("IN");
 
         ImageView droidView = droidChar.imageView;
         ImageView bulletImageView = new ImageView(getContext());
@@ -299,8 +300,8 @@ public class GameView extends FrameLayout {
         this.addView(bullet.imageView);
         bullets.add(bullet);
 
-        // ログに出力
-        L.d("OUT");
+//        // ログに出力
+//        L.d("OUT");
     }
 
     // MainActivityクラスにゲームオーバーを伝えるインタフェース
@@ -327,6 +328,12 @@ public class GameView extends FrameLayout {
             this.removeView(enemy.imageView);
         }
         enemies.clear();
+
+        // 弾をすべて削除
+        for (Bullet bullet : bullets) {
+            this.removeView(bullet.imageView);
+        }
+        bullets.clear();
 
         // センサーの再開をMainActivityクラスへ通知
         if (gameListener != null) {
